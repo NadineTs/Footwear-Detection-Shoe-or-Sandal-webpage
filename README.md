@@ -30,7 +30,8 @@ To run the Footwear Detection web application, follow these steps:
 5. **Reset Counts**:
    - Click the **"Reset Counter"** button to reset the detection counts to zero.
   
-
+**The Footwear Detection webpage
+![Image](https://github.com/user-attachments/assets/2e98d645-014c-4ac9-8c23-3d710f442ca4)
 
 
 
