@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footwear Detection</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #4a90e2, #2c3e50);
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #ecf0f1;
+            font-size: 2em; /* Increased font size */
+        }
+
+        #webcam-container {
+            margin: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #label-container {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ecf0f1;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 220px;
+            font-size: 1.2em; /* Increased font size */
+        }
+
+        #total-detections {
+            margin: 20px;
+            font-weight: bold;
+            font-size: 1.5em; /* Increased font size */
+            color: #2ecc71;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2980b9;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2em; /* Increased font size */
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3498db;
+        }
+
+        button:active {
+            background-color: #1abc9c;
+        }
+
+        @media (max-width: 600px) {
+            #label-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Footwear Detection "Shoe or Sandal"</h1>
+
+<button type="button" onclick="init()">Start Detection</button>
+<button type="button" onclick="resetCounts()">Reset Counter</button>
+
+<div id="webcam-container"></div>
+<div id="label-container"></div>
+<div id="total-detections">Total Detections: Shoes: 0, Sandals: 0</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+
+const URL = "https://teachablemachine.withgoogle.com/models/XMM5sMWBh/";
+
+let model, webcam, labelContainer, maxPredictions;
+let shoeCount = 0;
+let sandalCount = 0;
+
+// Load the image model and setup the webcam
+async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+
+    const flip = true; 
+    webcam = new tmImage.Webcam(200, 200, flip);
+    await webcam.setup(); 
+    await webcam.play();
+    window.requestAnimationFrame(loop);
+
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    labelContainer = document.getElementById("label-container");
+    for (let i = 0; i < maxPredictions; i++) {
+        labelContainer.appendChild(document.createElement("div"));
+    }
+}
+
+async function loop() {
+    webcam.update(); 
+    await predict();
+    window.requestAnimationFrame(loop);
+}
+
+async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    let shoeDetected = false;
+    let sandalDetected = false;
+
+    for (let i = 0; i < maxPredictions; i++) {
+        const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+        labelContainer.childNodes[i].innerHTML = classPrediction;
+
+        // Increment the count based on prediction 
+        if (prediction[i].className === "Shoe" && prediction[i].probability > 0.98) {
+            shoeDetected = true;
+        } else if (prediction[i].className === "Sandal" && prediction[i].probability > 0.98) {
+            sandalDetected = true;
+        }
+    }
+
+    // Update counts
+    if (shoeDetected) {
+        shoeCount++;
+    }
+    if (sandalDetected) {
+        sandalCount++;
+    }
+
+    // Display total detections
+    document.getElementById("total-detections").innerHTML = 
+        `Total Detections: Shoes: ${shoeCount}, Sandals: ${sandalCount}`;
+}
+
+// Reset counts function
+function resetCounts() {
+    shoeCount = 0;
+    sandalCount = 0;
+    document.getElementById("total-detections").innerHTML = 
+        `Total Detections: Shoes: ${shoeCount}, Sandals: ${sandalCount}`;
+}
+
+</script>
+
+</body>
+</html>
