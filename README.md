@@ -12,16 +12,15 @@ The application captures video from the user's webcam and identify whether the d
 - **JavaScript**
 
 
-
 ## Running the Application
 To run the Footwear Detection web application, follow these steps:
 
-1. **Clone the Repository** (or you can simply download the `footwear_detection.html` file.):
+1. **Clone the Repository** (or you can simply download the `footwear_detection.html` file.)
 
 2. **Open the HTML File**:
    - Open the `footwear_detection.html` file directly in your web browser.
   
-3. **Allow Camera Access**:
+3. **Allow Camera Access**
   
 4. **Start Detection**:
    - Click the **"Start Detection"** button to begin recognizing footwear.
